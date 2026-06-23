@@ -24,6 +24,8 @@ class DoctorFactory extends Factory
             'specialty' => fake()->randomElement(['Cardiology', 'Dermatology', 'Neurology', 'Pediatrics', 'General Practice', 'Orthopedics', 'Psychiatry', 'Oncology', 'Dentistry', 'Ophthalmology']),
             'phone' => fake()->phoneNumber(),
             'email' => fake()->unique()->safeEmail(),
+            'doctor_id'=> fake()->unique()->numerify('#############'),
+            'civil_id' => fake()->unique()->numerify('############'),
         ];
     }
 }
