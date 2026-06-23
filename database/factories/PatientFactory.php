@@ -26,6 +26,7 @@ class PatientFactory extends Factory
             'phone' => fake()->phoneNumber(),
             'email' => fake()->unique()->safeEmail(),
             'address' => fake()->address(),
+            'civil_id' => fake()->unique()->numerify('############')
         ];
     }
 }
