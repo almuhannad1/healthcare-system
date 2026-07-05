@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Models\Appointment;
+use App\Models\Doctor;
+use App\Models\Patient;
 use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
@@ -23,7 +25,10 @@ class AppointmentController extends Controller
      */
     public function create()
     {
-        //
+        $patients = Patient::orderBy('first_name')->get();
+        $doctors = Doctor::orderBy('first_name')->get();
+
+        return view('appointments.create', compact('patients', 'doctors'));
     }
 
     /**
