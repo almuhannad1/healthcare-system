@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AppointmentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -19,5 +20,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'role:admin'])->get('/admin', fn () => 'Admin area');
 Route::middleware(['auth', 'role:doctor'])->get('/doctor', fn () => 'Doctor area');
+// appointments
+Route::resource('appointments', AppointmentController::class)->middleware('auth');
 
 require __DIR__.'/auth.php';
