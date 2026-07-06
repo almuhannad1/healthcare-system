@@ -97,8 +97,12 @@ class AppointmentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Appointment $appointment)
     {
-        //
+        $appointment->update(['status' => 'canceled']);
+
+        return redirect()
+            ->route('appointments.index')
+            ->with('success', 'Appointment canceled.');
     }
 }
