@@ -71,9 +71,11 @@ class AppointmentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Appointment $appointment)
     {
-        //
+        $appointment->load('patient', 'doctor');
+
+        return view('appointments.show', compact('appointment'));
     }
 
     /**
