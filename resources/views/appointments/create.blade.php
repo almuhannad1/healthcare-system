@@ -12,34 +12,58 @@
                     @csrf
 
                     {{-- Patient --}}
+                    {{-- Patient: dropdown for admin/doctor, locked for patient --}}
                     <div>
                         <label for="patient_id" class="block text-sm font-medium text-gray-700">Patient</label>
-                        <select name="patient_id" id="patient_id"
-                            class="tom-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="">Select a patient…</option>
-                            @foreach ($patients as $patient)
-                                <option value="{{ $patient->patient_id }}" @selected(old('patient_id') == $patient->patient_id)>
-                                    {{ $patient->first_name }} {{ $patient->last_name }}
-                                </option>
-                            @endforeach
-                        </select>
+
+                        @if ($lockedPatient)
+                            {{-- Patient user: their record is fixed. Show it, don't let them change it. --}}
+                            <div
+                                class="mt-1 rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-900 ring-1 ring-gray-200">
+                                {{ $lockedPatient->first_name }} {{ $lockedPatient->last_name }}
+                            </div>
+                            {{-- NOTE: no hidden input here on purpose — the server fills patient_id (Stage C). --}}
+                        @else
+                            <select name="patient_id" id="patient_id"
+                                class="tom-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Select a patient…</option>
+                                @foreach ($patients as $patient)
+                                    <option value="{{ $patient->patient_id }}" @selected(old('patient_id') == $patient->patient_id)>
+                                        {{ $patient->first_name }} {{ $patient->last_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @endif
+
                         @error('patient_id')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
                     {{-- Doctor --}}
+                    {{-- Doctor: dropdown for admin/patient, locked for doctor --}}
                     <div>
                         <label for="doctor_id" class="block text-sm font-medium text-gray-700">Doctor</label>
-                        <select name="doctor_id" id="doctor_id"
-                            class="tom-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="">Select a doctor…</option>
-                            @foreach ($doctors as $doctor)
-                                <option value="{{ $doctor->doctor_id }}" @selected(old('doctor_id') == $doctor->doctor_id)>
-                                    Dr. {{ $doctor->first_name }} {{ $doctor->last_name }} — {{ $doctor->specialty }}
-                                </option>
-                            @endforeach
-                        </select>
+
+                        @if ($lockedDoctor)
+                            <div
+                                class="mt-1 rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-900 ring-1 ring-gray-200">
+                                Dr. {{ $lockedDoctor->first_name }} {{ $lockedDoctor->last_name }} —
+                                {{ $lockedDoctor->specialty }}
+                            </div>
+                        @else
+                            <select name="doctor_id" id="doctor_id"
+                                class="tom-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Select a doctor…</option>
+                                @foreach ($doctors as $doctor)
+                                    <option value="{{ $doctor->doctor_id }}" @selected(old('doctor_id') == $doctor->doctor_id)>
+                                        Dr. {{ $doctor->first_name }} {{ $doctor->last_name }} —
+                                        {{ $doctor->specialty }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @endif
+
                         @error('doctor_id')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror

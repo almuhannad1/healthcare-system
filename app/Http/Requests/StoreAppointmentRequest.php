@@ -12,6 +12,23 @@ use Illuminate\Support\Carbon;
 class StoreAppointmentRequest extends FormRequest
 {
     /**
+     * Runs BEFORE authorize() and rules().
+     * Injects the locked identity fields from the authenticated user,
+     * so the browser can never dictate who the appointment is for.
+     */
+    protected function prepareForValidation(): void
+    {
+        $user = $this->user();
+
+        if ($user->hasRole('doctor') && $user->doctor) {
+            $this->merge(['doctor_id' => $user->doctor->doctor_id]);
+        }
+        if ($user->hasRole('patient') && $user->patient) {
+            $this->merge(['patient_id' => $user->patient->patient_id]);
+        }
+    }
+    
+    /**
      * Determine if the user is authorized to make this request.
      * It answers a different question than validation: not "is the data valid?" but "is this person even allowed to attempt this action?"
      */
