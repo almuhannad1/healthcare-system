@@ -25,10 +25,35 @@ class AppointmentController extends Controller
      */
     public function create()
     {
-        $patients = Patient::orderBy('first_name')->get();
-        $doctors = Doctor::orderBy('first_name')->get();
+        $user = auth()->user();
 
-        return view('appointments.create', compact('patients', 'doctors'));
+        // Defaults: the admin/reception superset — see everyone.
+        $patients = collect();
+        $doctors = collect();
+        $lockedPatient = null;   // if set, patient field is fixed to this record
+        $lockedDoctor = null;   // if set, doctor field is fixed to this record
+
+        if ($user->hasRole('admin')) {
+            $patients = Patient::orderBy('first_name')->get();
+            $doctors = Doctor::orderBy('first_name')->get();
+
+        } elseif ($user->hasRole('doctor')) {
+            // A doctor books patients into THEIR OWN schedule.
+            $patients = Patient::orderBy('first_name')->get();
+            $lockedDoctor = $user->doctor;   // doctor field locked to self
+
+        } elseif ($user->hasRole('patient')) {
+            // A patient books THEMSELVES with a doctor of their choice.
+            $doctors = Doctor::orderBy('first_name')->get();
+            $lockedPatient = $user->patient; // patient field locked to self
+
+        } else {
+            abort(403, 'You are not allowed to book appointments.');
+        }
+
+        return view('appointments.create', compact(
+            'patients', 'doctors', 'lockedPatient', 'lockedDoctor'
+        ));
     }
 
     /**
