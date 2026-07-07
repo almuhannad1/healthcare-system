@@ -7,9 +7,14 @@ use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
 use Illuminate\Http\Request;
+use App\Http\Requests\UpdateAppointmentRequest;
 
 class AppointmentController extends Controller
 {
+    /*
+    create/edit are the "show a form" pair, and store/update are the "process a form" pair. Edit and create are cousins (both display forms); update and store are cousins (both save).
+    */
+
     /**
      * Display a listing of the resource.
      */
@@ -80,18 +85,47 @@ class AppointmentController extends Controller
 
     /**
      * Show the form for editing the specified resource.
+     * edit = show the form. update = save the form.
+     * GET request.
      */
-    public function edit(string $id)
+    public function edit(Appointment $appointment)
     {
-        //
+        $user = auth()->user();
+        $patients = collect();
+        $doctors = collect();
+        $lockedPatient = null;
+        $lockedDoctor = null;
+
+        if ($user->hasRole('admin')) {
+            $patients = Patient::orderBy('first_name')->get();
+            $doctors = Doctor::orderBy('first_name')->get();
+        } elseif ($user->hasRole('doctor')) {
+            $patients = Patient::orderBy('first_name')->get();
+            $lockedDoctor = $user->doctor;
+        } elseif ($user->hasRole('patient')) {
+            $doctors = Doctor::orderBy('first_name')->get();
+            $lockedPatient = $user->patient;
+        } else {
+            abort(403);
+        }
+
+        return view('appointments.edit', compact(
+            'appointment', 'patients', 'doctors', 'lockedPatient', 'lockedDoctor'
+        ));
     }
 
     /**
      * Update the specified resource in storage.
+     * edit = show the form. update = save the form.
+     * PUT request
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateAppointmentRequest $request, Appointment $appointment)
     {
-        //
+        $appointment->update($request->validated());
+
+        return redirect()
+            ->route('appointments.index')
+            ->with('success', 'Appointment updated.');
     }
 
     /**

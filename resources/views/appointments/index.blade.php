@@ -21,13 +21,14 @@
         </div>
     </x-slot>
 
-    <div class="py-12"
-        x-data="{
-            confirmOpen: false,
-            action: '',
-            name: '',
-            open(action, name) { this.action = action; this.name = name; this.confirmOpen = true; },
-        }">
+    <div class="py-12" x-data="{
+        confirmOpen: false,
+        action: '',
+        name: '',
+        open(action, name) { this.action = action;
+            this.name = name;
+            this.confirmOpen = true; },
+    }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             @if (session('success'))
                 <div
@@ -63,7 +64,7 @@
                                     Status</th>
                                 <th
                                     class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
-                                    Actions</th>
+                                    Edit</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
@@ -118,18 +119,8 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <a href="{{ route('appointments.show', $appointment) }}"
-                                                class="inline-flex items-center rounded-md px-2.5 py-1.5 text-sm font-medium text-indigo-600 hover:bg-indigo-50 hover:text-indigo-800">View</a>
-
-                                            @if ($appointment->status !== 'canceled')
-                                                <button type="button"
-                                                    x-on:click="open(@js(route('appointments.destroy', $appointment)), @js($patientName))"
-                                                    class="inline-flex items-center rounded-md px-2.5 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-800">
-                                                    Cancel
-                                                </button>
-                                            @endif
-                                        </div>
+                                        <a href="{{ route('appointments.edit', $appointment) }}"
+                                            class="inline-flex items-center rounded-md px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900">Edit</a>
                                     </td>
                                 </tr>
                             @empty
@@ -146,8 +137,8 @@
                                                 here.</p>
                                             <a href="{{ route('appointments.create') }}"
                                                 class="mt-4 inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500">
-                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                                    stroke-width="2" stroke="currentColor">
+                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                                    stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         d="M12 4.5v15m7.5-7.5h-15" />
                                                 </svg>
@@ -164,14 +155,13 @@
         </div>
 
         {{-- Cancel confirmation modal --}}
-        <div x-cloak x-show="confirmOpen" class="fixed inset-0 z-50 overflow-y-auto"
-            aria-labelledby="cancel-title" role="dialog" aria-modal="true">
+        <div x-cloak x-show="confirmOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="cancel-title"
+            role="dialog" aria-modal="true">
             {{-- Backdrop --}}
-            <div x-show="confirmOpen" x-transition:enter="ease-out duration-200"
-                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                x-transition:leave="ease-in duration-150" x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0" x-on:click="confirmOpen = false"
-                class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm"></div>
+            <div x-show="confirmOpen" x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150"
+                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                x-on:click="confirmOpen = false" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm"></div>
 
             {{-- Panel --}}
             <div class="flex min-h-full items-center justify-center p-4">
