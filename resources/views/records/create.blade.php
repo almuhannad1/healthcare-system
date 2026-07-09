@@ -8,8 +8,8 @@
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl p-6 sm:p-8">
 
-                <form method="POST" action="{{ route('patients.records.store', $patient) }}" class="space-y-6">
-                    @csrf
+                <form method="POST" action="{{ route('patients.records.store', $patient) }}" enctype="multipart/form-data"
+                    class="space-y-6"> @csrf
 
                     <div>
                         <label for="doctor_id" class="block text-sm font-medium text-gray-700">Doctor</label>
@@ -62,6 +62,16 @@
                             class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500">
                             Save record
                         </button>
+                    </div>
+
+                    <div>
+                        <label for="attachment" class="block text-sm font-medium text-gray-700">Attachment <span
+                                class="text-gray-400">(optional — PDF or image)</span></label>
+                        <input type="file" name="attachment" id="attachment" accept=".pdf,.jpg,.jpeg,.png"
+                            class="mt-1 block w-full text-sm text-gray-600">
+                        @error('attachment')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                 </form>
             </div>

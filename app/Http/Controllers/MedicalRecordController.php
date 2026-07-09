@@ -32,7 +32,13 @@ class MedicalRecordController extends Controller
             'visit_date' => ['required', 'date'],
             'diagnosis' => ['required', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'attachment' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
         ]);
+
+        if ($request->hasFile('attachment')) {
+            $validated['attachment_path'] = $request->file('attachment')
+                ->store("records/{$patient->patient_id}", 'public');
+        }
 
         $patient->medicalRecords()->create($validated);
 

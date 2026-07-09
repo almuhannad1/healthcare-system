@@ -34,6 +34,13 @@
                         {{ $record->doctor ? 'Dr. ' . $record->doctor->first_name . ' ' . $record->doctor->last_name : 'Doctor removed' }}
                     </p>
                     <p class="mt-3 text-sm text-gray-700">{{ $record->notes ?: '—' }}</p>
+
+                    @if ($record->attachment_path)
+                        <a href="{{ \Storage::url($record->attachment_path) }}" target="_blank"
+                            class="mt-3 inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                            View attachment
+                        </a>
+                    @endif
                 </div>
             @empty
                 <div class="rounded-2xl bg-white p-12 text-center shadow-sm ring-1 ring-gray-900/5">

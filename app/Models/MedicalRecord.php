@@ -15,6 +15,7 @@ class MedicalRecord extends Model
         'visit_date',
         'diagnosis',
         'notes',
+        'attachment_path',
     ];
 
     public function patient(): BelongsTo
