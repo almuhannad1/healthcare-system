@@ -20,9 +20,17 @@ class MedicalRecordController extends Controller
 
     public function create(Patient $patient)
     {
-        $doctors = Doctor::orderBy('first_name')->get();
+        $user = auth()->user();
+        $doctors = collect();
+        $lockedDoctor = null;
 
-        return view('records.create', compact('patient', 'doctors'));
+        if ($user->hasRole('doctor') && $user->doctor) {
+            $lockedDoctor = $user->doctor;          // doctor books as themselves
+        } else {
+            $doctors = Doctor::orderBy('first_name')->get();
+        }
+
+        return view('records.create', compact('patient', 'doctors', 'lockedDoctor'));
     }
 
     public function store(Request $request, Patient $patient)

@@ -11,17 +11,28 @@
                 <form method="POST" action="{{ route('patients.records.store', $patient) }}" enctype="multipart/form-data"
                     class="space-y-6"> @csrf
 
+                    {{-- Doctor: locked for doctors, dropdown for others --}}
                     <div>
                         <label for="doctor_id" class="block text-sm font-medium text-gray-700">Doctor</label>
-                        <select name="doctor_id" id="doctor_id"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="">Select a doctor…</option>
-                            @foreach ($doctors as $doctor)
-                                <option value="{{ $doctor->doctor_id }}" @selected(old('doctor_id') == $doctor->doctor_id)>
-                                    Dr. {{ $doctor->first_name }} {{ $doctor->last_name }} — {{ $doctor->specialty }}
-                                </option>
-                            @endforeach
-                        </select>
+                        @if ($lockedDoctor)
+                            <div
+                                class="mt-1 rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-900 ring-1 ring-gray-200">
+                                Dr. {{ $lockedDoctor->first_name }} {{ $lockedDoctor->last_name }} —
+                                {{ $lockedDoctor->specialty }}
+                            </div>
+                            {{-- no input — the server fills doctor_id --}}
+                        @else
+                            <select name="doctor_id" id="doctor_id"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Select a doctor…</option>
+                                @foreach ($doctors as $doctor)
+                                    <option value="{{ $doctor->doctor_id }}" @selected(old('doctor_id') == $doctor->doctor_id)>
+                                        Dr. {{ $doctor->first_name }} {{ $doctor->last_name }} —
+                                        {{ $doctor->specialty }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @endif
                         @error('doctor_id')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -29,7 +40,8 @@
 
                     <div>
                         <label for="visit_date" class="block text-sm font-medium text-gray-700">Visit date</label>
-                        <input type="date" name="visit_date" id="visit_date" value="{{ old('visit_date') }}"
+                        <input type="date" name="visit_date" id="visit_date"
+                            value="{{ old('visit_date', now()->format('Y-m-d')) }}"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         @error('visit_date')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
