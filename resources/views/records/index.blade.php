@@ -41,6 +41,11 @@
                             View attachment
                         </a>
                     @endif
+
+                    <div class="mt-3">
+                        <a href="{{ route('patients.records.edit', [$patient, $record]) }}"
+                            class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Edit</a>
+                    </div>
                 </div>
             @empty
                 <div class="rounded-2xl bg-white p-12 text-center shadow-sm ring-1 ring-gray-900/5">
