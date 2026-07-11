@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Doctor extends Model
 {
     use HasFactory;
+
     protected $primaryKey = 'doctor_id';
 
     protected $fillable = [
@@ -18,7 +19,7 @@ class Doctor extends Model
         'specialty',
         'phone',
         'email',
-        'doctor_id'
+        'doctor_id',
     ];
 
     public function appointments()
@@ -29,5 +30,10 @@ class Doctor extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function medicalRecords()
+    {
+        return $this->hasMany(MedicalRecord::class, 'doctor_id', 'doctor_id');
     }
 }
