@@ -10,10 +10,13 @@ class MedicalRecordController extends Controller
 {
     public function index(Patient $patient)
     {
-        $records = $patient->medicalRecords()
-            ->with('doctor')
-            ->latest('visit_date')
-            ->get();
+        $user = auth()->user();
+
+        if ($user->hasRole('patient') && $user->patient?->patient_id !== $patient->patient_id) {
+            abort(403);
+        }
+
+        $records = $patient->medicalRecords()->with('doctor')->latest('visit_date')->get();
 
         return view('records.index', compact('patient', 'records'));
     }

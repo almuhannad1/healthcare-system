@@ -4,6 +4,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MedicalRecordController;
+use App\Http\Controllers\PatientController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -25,5 +26,12 @@ Route::middleware(['auth', 'role:doctor'])->get('/doctor', fn () => 'Doctor area
 Route::resource('appointments', AppointmentController::class)->middleware('auth');
 
 Route::resource('patients.records', MedicalRecordController::class)->middleware('auth');
+
+Route::resource('patients', PatientController::class)
+    ->only('index')
+    ->middleware('auth');
+
+Route::resource('patients.records', MedicalRecordController::class)
+    ->middleware('auth');
 
 require __DIR__.'/auth.php';
