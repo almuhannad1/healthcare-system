@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAppointmentRequest;
+use App\Http\Requests\UpdateAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
 use Illuminate\Http\Request;
-use App\Http\Requests\UpdateAppointmentRequest;
 
 class AppointmentController extends Controller
 {
@@ -20,7 +20,18 @@ class AppointmentController extends Controller
      */
     public function index()
     {
-        $appointments = Appointment::with('patient', 'doctor')->latest('scheduled_at')->get();
+        $user = auth()->user();
+
+        $query = Appointment::with('patient', 'doctor')->latest('scheduled_at');
+
+        if ($user->hasRole('doctor') && $user->doctor) {
+            $query->where('doctor_id', $user->doctor->doctor_id);
+        } elseif ($user->hasRole('patient') && $user->patient) {
+            $query->where('patient_id', $user->patient->patient_id);
+        }
+        // admin: no filter — sees all
+
+        $appointments = $query->get();
 
         return view('appointments.index', compact('appointments'));
     }
@@ -30,6 +41,8 @@ class AppointmentController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Appointment::class);
+
         $user = auth()->user();
 
         // Defaults: the admin/reception superset — see everyone.
@@ -66,6 +79,8 @@ class AppointmentController extends Controller
      */
     public function store(StoreAppointmentRequest $request)
     {
+        $this->authorize('create', Appointment::class);
+
         Appointment::create($request->validated());
 
         return redirect()
@@ -78,7 +93,7 @@ class AppointmentController extends Controller
      */
     public function show(Appointment $appointment)
     {
-        $appointment->load('patient', 'doctor');
+        $this->authorize('view', $appointment);
 
         return view('appointments.show', compact('appointment'));
     }
@@ -90,6 +105,7 @@ class AppointmentController extends Controller
      */
     public function edit(Appointment $appointment)
     {
+        $this->authorize('update', $appointment);
         $user = auth()->user();
         $patients = collect();
         $doctors = collect();
@@ -121,6 +137,8 @@ class AppointmentController extends Controller
      */
     public function update(UpdateAppointmentRequest $request, Appointment $appointment)
     {
+        $this->authorize('update', $appointment);
+
         $appointment->update($request->validated());
 
         return redirect()
@@ -133,6 +151,7 @@ class AppointmentController extends Controller
      */
     public function destroy(Appointment $appointment)
     {
+        $this->authorize('update', $appointment);
         $appointment->update(['status' => 'canceled']);
 
         return redirect()

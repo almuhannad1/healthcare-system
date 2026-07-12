@@ -5,13 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Doctor;
 use App\Models\MedicalRecord;
 use App\Models\Patient;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class MedicalRecordController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index(Patient $patient)
     {
-        $this->authorizePatientAccess($patient);
+        $this->authorize('viewAny', [MedicalRecord::class, $patient]);
 
         $records = $patient->medicalRecords()->with('doctor')->latest('visit_date')->get();
 
@@ -20,7 +23,7 @@ class MedicalRecordController extends Controller
 
     public function create(Patient $patient)
     {
-        $this->authorizePatientAccess($patient);
+        $this->authorize('create', [MedicalRecord::class, $patient]);
 
         $user = auth()->user();
         $doctors = collect();
@@ -37,7 +40,7 @@ class MedicalRecordController extends Controller
 
     public function store(Request $request, Patient $patient)
     {
-        $this->authorizePatientAccess($patient);
+        $this->authorize('create', [MedicalRecord::class, $patient]);
 
         $user = auth()->user();
 
@@ -47,10 +50,10 @@ class MedicalRecordController extends Controller
         }
 
         $validated = $request->validate([
-            'doctor_id'  => ['required', 'integer', 'exists:doctors,doctor_id'],
+            'doctor_id' => ['required', 'integer', 'exists:doctors,doctor_id'],
             'visit_date' => ['required', 'date'],
-            'diagnosis'  => ['required', 'string', 'max:255'],
-            'notes'      => ['nullable', 'string', 'max:2000'],
+            'diagnosis' => ['required', 'string', 'max:255'],
+            'notes' => ['nullable', 'string', 'max:2000'],
             'attachment' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
         ]);
 
@@ -68,7 +71,7 @@ class MedicalRecordController extends Controller
 
     public function edit(Patient $patient, MedicalRecord $record)
     {
-        $this->authorizePatientAccess($patient);
+        $this->authorize('update', $record);
 
         $user = auth()->user();
         $doctors = collect();
@@ -85,7 +88,7 @@ class MedicalRecordController extends Controller
 
     public function update(Request $request, Patient $patient, MedicalRecord $record)
     {
-        $this->authorizePatientAccess($patient);
+        $this->authorize('update', $record);
 
         $user = auth()->user();
 
@@ -94,10 +97,10 @@ class MedicalRecordController extends Controller
         }
 
         $validated = $request->validate([
-            'doctor_id'  => ['required', 'integer', 'exists:doctors,doctor_id'],
+            'doctor_id' => ['required', 'integer', 'exists:doctors,doctor_id'],
             'visit_date' => ['required', 'date'],
-            'diagnosis'  => ['required', 'string', 'max:255'],
-            'notes'      => ['nullable', 'string', 'max:2000'],
+            'diagnosis' => ['required', 'string', 'max:255'],
+            'notes' => ['nullable', 'string', 'max:2000'],
         ]);
 
         $record->update($validated);
@@ -105,18 +108,5 @@ class MedicalRecordController extends Controller
         return redirect()
             ->route('patients.records.index', $patient)
             ->with('success', 'Medical record updated.');
-    }
-
-    /**
-     * A patient may only access their OWN records.
-     * Admins and doctors pass through.
-     */
-    private function authorizePatientAccess(Patient $patient): void
-    {
-        $user = auth()->user();
-
-        if ($user->hasRole('patient') && $user->patient?->patient_id !== $patient->patient_id) {
-            abort(403);
-        }
     }
 }
