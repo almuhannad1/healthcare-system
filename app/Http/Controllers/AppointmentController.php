@@ -7,12 +7,10 @@ use App\Http\Requests\UpdateAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
 {
-    use AuthorizesRequests;
     /*
     create/edit are the "show a form" pair, and store/update are the "process a form" pair. Edit and create are cousins (both display forms); update and store are cousins (both save).
     */
@@ -44,7 +42,7 @@ class AppointmentController extends Controller
     public function create()
     {
         $this->authorize('create', Appointment::class);
-        
+
         $user = auth()->user();
 
         // Defaults: the admin/reception superset — see everyone.
@@ -107,7 +105,7 @@ class AppointmentController extends Controller
      */
     public function edit(Appointment $appointment)
     {
-        $this->authorize('create', Appointment::class);
+        $this->authorize('update', $appointment);
         $user = auth()->user();
         $patients = collect();
         $doctors = collect();
