@@ -73,5 +73,8 @@ class DatabaseSeeder extends Seeder
             [Role::where('name', 'patient')->first()->id]
         );
         Patient::first()->update(['user_id' => $patientUser->id]);
+
+        // Pharmacy
+        \App\Models\Medication::factory(30)->create();
     }
 }
