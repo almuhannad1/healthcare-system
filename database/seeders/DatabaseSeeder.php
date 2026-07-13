@@ -74,6 +74,15 @@ class DatabaseSeeder extends Seeder
         );
         Patient::first()->update(['user_id' => $patientUser->id]);
 
+        // 5. A pharmacist user — staff who owns the pharmacy catalog.
+        $pharmacistUser = User::factory()->create([
+            'name' => 'Pharmacist User',
+            'email' => 'pharmacist@example.com',
+        ]);
+        $pharmacistUser->roles()->syncWithoutDetaching(
+            [Role::where('name', 'pharmacist')->first()->id]
+        );
+
         // Pharmacy
         \App\Models\Medication::factory(30)->create();
     }

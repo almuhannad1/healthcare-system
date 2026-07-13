@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\MedicalRecordController;
+use App\Http\Controllers\MedicationController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,10 @@ Route::resource('patients.records', MedicalRecordController::class)
 
 Route::resource('appointments', AppointmentController::class)
     ->except('destroy')
+    ->middleware('auth');
+
+Route::resource('medications', MedicationController::class)
+    ->only(['index', 'create', 'store', 'edit', 'update'])
     ->middleware('auth');
 
 require __DIR__.'/auth.php';
