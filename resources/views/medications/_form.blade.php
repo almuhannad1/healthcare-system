@@ -26,14 +26,18 @@
     @enderror
 </div>
 
-{{-- Price (stored as integer cents) --}}
+{{-- Price — entered in dollars, stored as integer cents --}}
 <div>
-    <label for="price_cents" class="block text-sm font-medium text-gray-700">Price in cents</label>
-    <input type="number" name="price_cents" id="price_cents" min="0" step="1"
-        value="{{ old('price_cents', $medication?->price_cents) }}" placeholder="e.g. 1299 for $12.99"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-    <p class="mt-1 text-xs text-gray-500">Whole cents — 1299 means $12.99. Storage stays integer.</p>
-    @error('price_cents')
+    <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
+    <div class="relative mt-1">
+        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">$</span>
+        <input type="number" name="price" id="price" min="0" step="0.01"
+            value="{{ old('price', $medication ? number_format($medication->price_cents / 100, 2, '.', '') : '') }}"
+            placeholder="12.50"
+            class="block w-full rounded-md border-gray-300 pl-7 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+    </div>
+    <p class="mt-1 text-xs text-gray-500">Enter dollars and cents — 12.50. Stored internally as cents.</p>
+    @error('price')
         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
     @enderror
 </div>
