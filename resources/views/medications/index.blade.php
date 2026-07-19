@@ -57,7 +57,7 @@
                                     Status</th>
                                 <th
                                     class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
-                                    Edit</th>
+                                    Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
@@ -98,8 +98,18 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                                        <a href="{{ route('medications.edit', $medication) }}"
-                                            class="inline-flex items-center rounded-md px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900">Edit</a>
+                                        <div class="flex items-center justify-end gap-1">
+                                            @if ($medication->stock_quantity > 0)
+                                                <a href="{{ route('medications.dispense.create', $medication) }}"
+                                                    class="inline-flex items-center rounded-md px-2.5 py-1.5 text-sm font-medium text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700">Dispense</a>
+                                            @else
+                                                <span
+                                                    class="inline-flex items-center rounded-md px-2.5 py-1.5 text-sm font-medium text-gray-300"
+                                                    title="Out of stock">Dispense</span>
+                                            @endif
+                                            <a href="{{ route('medications.edit', $medication) }}"
+                                                class="inline-flex items-center rounded-md px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900">Edit</a>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
