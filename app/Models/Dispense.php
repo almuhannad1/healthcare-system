@@ -9,7 +9,12 @@ class Dispense extends Model
 {
     protected $primaryKey = 'dispense_id';
 
-    protected $fillable = ['medication_id', 'patient_id', 'user_id', 'quantity'];
+    protected $fillable = ['medication_id', 'patient_id', 'user_id', 'quantity', 'appointment_id'];
+
+    public function appointment(): BelongsTo
+    {
+        return $this->belongsTo(Appointment::class, 'appointment_id', 'appointment_id');
+    }
 
     public function medication(): BelongsTo
     {

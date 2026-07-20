@@ -17,10 +17,20 @@ class Doctor extends Model
         'middle_name',
         'last_name',
         'specialty',
+        'consultation_fee_cents',
         'phone',
         'email',
         'doctor_id',
     ];
+
+    /**
+     * This doctor's fee, falling back to the clinic-wide default
+     * when they don't set one of their own.
+     */
+    public function consultationFeeCents(): int
+    {
+        return $this->consultation_fee_cents ?? config('billing.consultation_fee_cents');
+    }
 
     public function appointments()
     {

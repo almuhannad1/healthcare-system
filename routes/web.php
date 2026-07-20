@@ -1,12 +1,13 @@
 <?php
 
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\DispenseController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\MedicationController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DispenseController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -48,5 +49,18 @@ Route::get('medications/{medication}/dispense', [DispenseController::class, 'cre
     ->name('medications.dispense.create')->middleware('auth');
 Route::post('medications/{medication}/dispense', [DispenseController::class, 'store'])
     ->name('medications.dispense.store')->middleware('auth');
+
+Route::middleware('auth')->group(function () {
+    Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+
+    Route::post('appointments/{appointment}/invoice', [InvoiceController::class, 'store'])
+        ->name('appointments.invoice.store');
+
+    Route::get('invoices/{invoice}/pdf', [InvoiceController::class, 'pdf'])
+        ->name('invoices.pdf');
+
+    Route::patch('invoices/{invoice}/paid', [InvoiceController::class, 'markPaid'])
+        ->name('invoices.paid');
+});
 
 require __DIR__.'/auth.php';
