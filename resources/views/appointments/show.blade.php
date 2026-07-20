@@ -190,6 +190,43 @@
                     {{ $appointment->reason ?: 'No reason provided.' }}</p>
             </div>
 
+            {{-- Billing --}}
+            @can('create', App\Models\Invoice::class)
+                <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-900">Billing</h3>
+                            @if ($appointment->invoice)
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Invoice #{{ $appointment->invoice->invoice_id }} ·
+                                    ${{ $appointment->invoice->totalDollars() }} ·
+                                    <span class="capitalize">{{ $appointment->invoice->status }}</span>
+                                </p>
+                            @else
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Bills the consultation fee plus any medication dispensed against this visit.
+                                </p>
+                            @endif
+                        </div>
+
+                        @if ($appointment->invoice)
+                            <a href="{{ route('invoices.pdf', $appointment->invoice) }}"
+                                class="inline-flex shrink-0 items-center rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                Download PDF
+                            </a>
+                        @else
+                            <form method="POST" action="{{ route('appointments.invoice.store', $appointment) }}">
+                                @csrf
+                                <button type="submit"
+                                    class="inline-flex shrink-0 items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500">
+                                    Generate invoice
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            @endcan
+
             {{-- Meta --}}
             <p class="px-1 text-xs text-gray-400">
                 Booked {{ \Illuminate\Support\Carbon::parse($appointment->created_at)->diffForHumans() }}
