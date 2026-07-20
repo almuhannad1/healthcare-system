@@ -7,6 +7,7 @@ use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\MedicationController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -49,6 +50,9 @@ Route::get('medications/{medication}/dispense', [DispenseController::class, 'cre
     ->name('medications.dispense.create')->middleware('auth');
 Route::post('medications/{medication}/dispense', [DispenseController::class, 'store'])
     ->name('medications.dispense.store')->middleware('auth');
+
+Route::get('reports', [ReportController::class, 'index'])
+    ->name('reports.index')->middleware('auth');
 
 Route::middleware('auth')->group(function () {
     Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');

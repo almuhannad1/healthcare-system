@@ -20,6 +20,12 @@
                         {{ __('Appointments') }}
                     </x-nav-link>
 
+                    @if (auth()->user()->hasRole('admin'))
+                        <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
+                            {{ __('Reports') }}
+                        </x-nav-link>
+                    @endif
+
                     @can('viewAny', App\Models\Invoice::class)
                         <x-nav-link :href="route('invoices.index')" :active="request()->routeIs('invoices.*')">
                             {{ __('Invoices') }}
@@ -84,6 +90,12 @@
             <x-responsive-nav-link :href="route('appointments.index')" :active="request()->routeIs('appointments.*')">
                 {{ __('Appointments') }}
             </x-responsive-nav-link>
+
+            @if (auth()->user()->hasRole('admin'))
+                <x-responsive-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
+                    {{ __('Reports') }}
+                </x-responsive-nav-link>
+            @endif
 
             @can('viewAny', App\Models\Invoice::class)
                 <x-responsive-nav-link :href="route('invoices.index')" :active="request()->routeIs('invoices.*')">
