@@ -25,10 +25,14 @@ class Medication extends Model
     /**
      * Atomically dispense stock. Returns true if dispensed,
      * false if there wasn't enough stock. Race-safe.
+     *
+     * $appointmentId ties the dispense to a visit so it can be invoiced;
+     * null means stock handed out outside an appointment, which is
+     * recorded but never billed.
      */
-    public function dispense(int $quantity, int $patientId, int $userId): bool
+    public function dispense(int $quantity, int $patientId, int $userId, ?int $appointmentId = null): bool
     {
-        return DB::transaction(function () use ($quantity, $patientId, $userId) {
+        return DB::transaction(function () use ($quantity, $patientId, $userId, $appointmentId) {
             $affected = static::where('medication_id', $this->medication_id)
                 ->where('stock_quantity', '>=', $quantity)
                 ->decrement('stock_quantity', $quantity);
@@ -42,6 +46,7 @@ class Medication extends Model
                 'patient_id' => $patientId,
                 'user_id' => $userId,
                 'quantity' => $quantity,
+                'appointment_id' => $appointmentId,
             ]);
 
             return true;

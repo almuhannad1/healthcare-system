@@ -42,6 +42,31 @@
                         @enderror
                     </div>
 
+                    {{-- Appointment — optional; only what's billable to a visit --}}
+                    <div>
+                        <label for="appointment_id" class="block text-sm font-medium text-gray-700">
+                            Appointment <span class="font-normal text-gray-400">(optional)</span>
+                        </label>
+                        <select name="appointment_id" id="appointment_id"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="">Not tied to a visit — won't be invoiced</option>
+                            @foreach ($appointments as $appointment)
+                                <option value="{{ $appointment->appointment_id }}"
+                                    data-patient="{{ $appointment->patient_id }}"
+                                    @selected(old('appointment_id') == $appointment->appointment_id)>
+                                    {{ \Illuminate\Support\Carbon::parse($appointment->scheduled_at)->format('j M Y, g:ia') }}
+                                    · {{ $appointment->reason ?: 'Consultation' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">
+                            Pick the visit this medication belongs to so it lands on that invoice.
+                        </p>
+                        @error('appointment_id')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     {{-- Quantity --}}
                     <div>
                         <label for="quantity" class="block text-sm font-medium text-gray-700">Quantity</label>
@@ -77,5 +102,34 @@
                 allowEmptyOption: true
             });
         });
+
+        // Show only the selected patient's appointments. The server re-checks
+        // this — hiding an option is a convenience, not the guard.
+        (function () {
+            const patientSelect = document.getElementById('patient_id');
+            const appointmentSelect = document.getElementById('appointment_id');
+            const options = Array.from(appointmentSelect.options).slice(1);
+
+            function syncAppointments() {
+                const patientId = patientSelect.value;
+
+                options.forEach((option) => {
+                    const matches = patientId && option.dataset.patient === patientId;
+                    option.hidden = !matches;
+                    if (!matches && option.selected) {
+                        appointmentSelect.value = '';
+                    }
+                });
+
+                const available = options.some((option) => !option.hidden);
+                appointmentSelect.disabled = !available;
+                appointmentSelect.options[0].text = available
+                    ? "Not tied to a visit — won't be invoiced"
+                    : 'No appointments for this patient';
+            }
+
+            patientSelect.addEventListener('change', syncAppointments);
+            syncAppointments();
+        })();
     </script>
 </x-app-layout>
