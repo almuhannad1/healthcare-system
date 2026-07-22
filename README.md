@@ -1,58 +1,114 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Healthcare Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A role-based clinic management application built with **Laravel 13** and **PHP 8.3**. It covers the core workflow of a small clinic — from booking an appointment, through the consultation and dispensing medication, to producing a paid invoice — with authorization, stock integrity, and scheduling rules enforced at the server.
 
-## About Laravel
+Four user roles (patient, doctor, pharmacist, admin) each see a different slice of the system, backed by Laravel policies rather than UI-only checks.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Screenshots
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+> _Add screenshots to `docs/screenshots/` and they'll render here._
 
-## Learning Laravel
+| Appointments | Pharmacy & Dispensing | Reports Dashboard |
+| --- | --- | --- |
+| ![Appointments](docs/screenshots/appointments.png) | ![Pharmacy](docs/screenshots/pharmacy.png) | ![Reports](docs/screenshots/reports.png) |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Modules
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+| Module | What it does |
+| --- | --- |
+| **Patients & Doctors** | Directory records, each optionally linked to a login account. |
+| **Appointments** | Book, view, and update visits. Scheduling is server-validated with double-booking prevention. |
+| **Medical Records** | Consultation notes tied to a patient, with file attachments. |
+| **Pharmacy** | Medication catalog with stock levels, owned by the pharmacist role. |
+| **Dispensing** | Hand medication to a patient against an appointment — stock decremented atomically. |
+| **Invoicing** | Generate an invoice from a consultation fee plus any dispenses, download it as a PDF, and mark it paid. |
+| **Reports** | Admin dashboard: headline stats, low-stock alerts, and unpaid invoices. |
 
-## Agentic Development
+---
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Roles & Access
+
+Roles are a many-to-many relationship (`role_user`), so a user can hold more than one. Access is enforced by policies (`AppointmentPolicy`, `InvoicePolicy`, `MedicalRecordPolicy`, `MedicationPolicy`) and `role:` middleware, not by hiding buttons.
+
+- **Patient** — sees only their own appointments and records.
+- **Doctor** — sees their own patients and appointments; sets consultation fees.
+- **Pharmacist** — owns the medication catalog and dispensing.
+- **Admin / Reception** — sees everything, plus the reports dashboard.
+
+---
+
+## Tech Stack
+
+- **Backend:** Laravel 13, PHP 8.3
+- **Auth:** Laravel Breeze
+- **Frontend:** Blade, Tailwind CSS, Alpine.js, Vite
+- **PDF:** `barryvdh/laravel-dompdf`
+- **Testing:** PHPUnit
+
+---
+
+## Getting Started
+
+**Requirements:** PHP 8.3+, Composer, Node.js, and a database (MySQL/PostgreSQL, or SQLite for a quick start).
 
 ```bash
-composer require laravel/boost --dev
+# 1. Install dependencies
+composer install
+npm install
 
-php artisan boost:install
+# 2. Environment
+cp .env.example .env
+php artisan key:generate
+# Configure your DB in .env (or point DB_CONNECTION=sqlite at database/database.sqlite)
+
+# 3. Create the schema and seed demo data (patients, doctors, appointments, meds, test logins)
+php artisan migrate --seed
+
+# 4. Build assets
+npm run build
+
+# 5. Run
+composer dev        # server + queue + logs + vite together
+# or simply: php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Then visit **http://localhost:8000**.
 
-## Contributing
+### Test Logins
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+The seeder creates one account per role. Password for all of them is `password`.
 
-## Code of Conduct
+| Role | Email |
+| --- | --- |
+| Admin / Reception | `admin@example.com` |
+| Doctor | `doctor@example.com` |
+| Patient | `patient@example.com` |
+| Pharmacist | `pharmacist@example.com` |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## Engineering Notes
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+A few decisions worth calling out:
 
-## License
+- **Atomic dispensing.** Stock is never read-then-written. `Medication::dispense()` runs a conditional decrement inside a transaction — `WHERE stock_quantity >= :qty` — and treats an affected-row count of zero as "out of stock." Two pharmacists dispensing the last unit at the same time can't both succeed and drive stock negative.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Double-booking prevention.** `StoreAppointmentRequest` runs an `after` validation hook that rejects any slot within a 30-minute window of the doctor's existing appointments, so a clash surfaces as a normal validation error rather than a bad row.
+
+- **Server-owned identity.** `prepareForValidation()` injects the locked `doctor_id` / `patient_id` from the authenticated user before rules run — the browser can't dictate who an appointment or dispense is for. Dispensing further verifies the chosen appointment actually belongs to the chosen patient.
+
+- **Policy-based authorization.** Every sensitive action (viewing a record, creating an invoice, marking it paid) is gated by a policy, keeping "who can do this?" out of the controllers and views.
+
+- **Money as integer cents.** Prices are stored as integer cents and converted from dollars at the edge, with rounding to avoid binary-float truncation.
+
+---
+
+## Testing
+
+```bash
+php artisan test
+```
