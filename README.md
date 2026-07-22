@@ -6,16 +6,6 @@ Four user roles (patient, doctor, pharmacist, admin) each see a different slice 
 
 ---
 
-## Screenshots
-
-> _Add screenshots to `docs/screenshots/` and they'll render here._
-
-| Appointments | Pharmacy & Dispensing | Reports Dashboard |
-| --- | --- | --- |
-| ![Appointments](docs/screenshots/appointments.png) | ![Pharmacy](docs/screenshots/pharmacy.png) | ![Reports](docs/screenshots/reports.png) |
-
----
-
 ## Modules
 
 | Module | What it does |
